@@ -42,6 +42,17 @@ def copy_Dx_to_W0(x): # starts and ends at W0
 
     return copy_code
 
+def translation_add_full(): # starts and ends W0
+    add_code = "<+<+<+<+>>>>" # add 1 to all D, return to W0
+    add_code += copy_Dx_to_W0(0)
+    add_code += "[<<->>" # if W0(=D0) != 0, undo D1 carry
+    add_code += copy_Dx_to_W0(1)
+    add_code += "[<<<->>>" # if W0(=D1) != 0 (and prev condition), undo D2 carry
+    add_code += copy_Dx_to_W0(2)
+    add_code += "[<<<<->>>>" # if W0(=D2) != 0 (and prev conditions), undo D3 carry
+    add_code += SET_ZERO # zero W0 so loops exit
+    add_code += "]]]" # exit on W0
+
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
