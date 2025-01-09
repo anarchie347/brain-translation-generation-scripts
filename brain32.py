@@ -56,8 +56,9 @@ def translation_add_full_old(): # starts and ends W0
     return add_code
 
 # problem with carrys still. this involves carry check before carry is undone which means if a 255 exists anywhere it WILL cause a carry to its right
-def translation_add_full(): # starts and ends W0
-    add_code = "<+<+<+<+>>>>" # add 1 to all D, return to W0
+def translation_add_full_2(): # starts and ends W0
+    #add_code = "<-<+<+<+>>>>" # add 1 to all D, return to W0
+    add_code = "<+>"
     add_code += copy_Dx_to_W0(0)
     add_code += "[" # if W0(=D0) != 0, undo D1 carry
     add_code += copy_Dx_to_W0(1)
@@ -67,6 +68,31 @@ def translation_add_full(): # starts and ends W0
     add_code += SET_ZERO # zero W0 so loops exit
     add_code += "<<<<->>>>]<<<->>>]<<->>]" # exit on W0
     return add_code
+
+def translation_add_full_3():
+    # need OR not AND
+    add_code = "<+<+<+<+>>>>"
+    add_code += copy_Dx_to_W0(0)
+    add_code += "["
+    add_code += "<<->>"
+    add_code += "<<<->>>"
+    add_code += "<<<<->>>>"
+    add_code += SET_ZERO
+    add_code += "]"
+    add_code += copy_Dx_to_W0(1)
+    add_code += "["
+    add_code += "<<<->>>"
+    add_code += "<<<<->>>>"
+    add_code += SET_ZERO
+    add_code += "]"
+    add_code += copy_Dx_to_W0(2)
+    add_code += "["
+    add_code += "<<<<->>>>"
+    add_code += SET_ZERO
+    add_code += "]"
+    return add_code
+    
+
 
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
@@ -81,7 +107,7 @@ def gen_tests():
             else:
                 result += "+" * 5 + ">"
         result += AROUND_COLON
-        result += translation_add_full()
+        result += translation_add_full_3()
         result += AROUND_COLON
         result += "<[-]" * 4 + ">" * 4 + "\\"
     return result
