@@ -42,21 +42,54 @@ def copy_Dx_to_W0(x): # starts and ends at W0
 
     return copy_code
 
-def translation_add_full(): # starts and ends W0
+# problem is carry is undone just before check is done
+def translation_add_full_old(): # starts and ends W0
     add_code = "<+<+<+<+>>>>" # add 1 to all D, return to W0
-    add_code += copy_Dx_to_W0(0)
+    add_code += copy_Dx_to_W0(0) + "?"
     add_code += "[<<->>" # if W0(=D0) != 0, undo D1 carry
-    add_code += copy_Dx_to_W0(1)
+    add_code += copy_Dx_to_W0(1) + "?"
     add_code += "[<<<->>>" # if W0(=D1) != 0 (and prev condition), undo D2 carry
-    add_code += copy_Dx_to_W0(2)
+    add_code += copy_Dx_to_W0(2) + "?"
     add_code += "[<<<<->>>>" # if W0(=D2) != 0 (and prev conditions), undo D3 carry
     add_code += SET_ZERO # zero W0 so loops exit
     add_code += "]]]" # exit on W0
+    return add_code
+
+# problem with carrys still. this involves carry check before carry is undone which means if a 255 exists anywhere it WILL cause a carry to its right
+def translation_add_full(): # starts and ends W0
+    add_code = "<+<+<+<+>>>>" # add 1 to all D, return to W0
+    add_code += copy_Dx_to_W0(0)
+    add_code += "[" # if W0(=D0) != 0, undo D1 carry
+    add_code += copy_Dx_to_W0(1)
+    add_code += "[" # if W0(=D1) != 0 (and prev condition), undo D2 carry
+    add_code += copy_Dx_to_W0(2)
+    add_code += "[" # if W0(=D2) != 0 (and prev conditions), undo D3 carry
+    add_code += SET_ZERO # zero W0 so loops exit
+    add_code += "<<<<->>>>]<<<->>>]<<->>]" # exit on W0
+    return add_code
 
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
+def gen_tests():
+    result = ">>>>"
+    for i in range(0,16):
+        result += "<<<<"
+        for place in range (0,4):
+            if (i & (2^place)):
+                result += "->"
+            else:
+                result += "+" * 5 + ">"
+        result += AROUND_COLON
+        result += translation_add_full()
+        result += AROUND_COLON
+        result += "<[-]" * 4 + ">" * 4 + "\\"
+    return result
+
+
 # actual code
+result = gen_tests()
+
 
 
 with open("output.bf", "w") as file:
