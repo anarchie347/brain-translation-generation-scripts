@@ -1,5 +1,7 @@
 # See bottome for code that is actually run to start
 
+SET_ZERO = "[-]"
+
 def ptr_W0_to_Dx(x):
     match x:
         case 0: return "<"
@@ -28,9 +30,22 @@ def move_patterned(offsets): # takes list of offsets, each relative to the previ
 
     return move_code
 
+def copy_Dx_to_W0(x): # starts and ends at W0
+    to_W0 = x + 1 # account for least significant is col 0
+    copy_code = SET_ZERO
+    copy_code += ptr_W0_to_Dx(x)
+    copy_code += move_patterned([to_W0,5]) # move to W0,W1
+    copy_code += ptr_Dx_to_W0(x)
+    copy_code += ">>>>>" # to W1
+    copy_code += move_patterned([-(to_W0 + 5)]) # move W1 to Dx
+    copy_code += "<<<<<" # back to W0
+
+    return copy_code
+
+ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
+AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 # actual code
-result = ""
 
 
 with open("output.bf", "w") as file:
