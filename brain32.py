@@ -33,6 +33,7 @@ def move_patterned(offsets): # takes list of offsets, each relative to the previ
 def copy_Dx_to_W0(x): # starts and ends at W0
     to_W0 = x + 1 # account for least significant is col 0
     copy_code = SET_ZERO
+    copy_code += ">>>>>" + SET_ZERO + "<<<<<" # set W1 = 0
     copy_code += ptr_W0_to_Dx(x)
     copy_code += move_patterned([to_W0,5]) # move to W0,W1
     copy_code += ptr_Dx_to_W0(x)
@@ -71,18 +72,16 @@ def translation_add_full_2(): # starts and ends W0
 
 def translation_add_full_3():
     # need OR not AND
+    # Worst case scenario, code for 8 separate cases, so use extra + or - that will be cancelled out by the scenario also matching a later case
     add_code = "<+<+<+<+>>>>"
     add_code += copy_Dx_to_W0(0)
     add_code += "["
-    add_code += "<<->>"
-    add_code += "<<<->>>"
-    add_code += "<<<<->>>>"
+    add_code += "<<-<-<->>>>"
     add_code += SET_ZERO
     add_code += "]"
     add_code += copy_Dx_to_W0(1)
     add_code += "["
-    add_code += "<<<->>>"
-    add_code += "<<<<->>>>"
+    add_code += "<<<-<->>>>"
     add_code += SET_ZERO
     add_code += "]"
     add_code += copy_Dx_to_W0(2)
@@ -91,7 +90,39 @@ def translation_add_full_3():
     add_code += SET_ZERO
     add_code += "]"
     return add_code
-    
+
+
+def translation_add_full_4():
+    # could add perf improvement by using W[-1] instead of W2 or maybe make it so W is on left
+    add_code = "<+<+<+<+>>>>" # default carry
+    add_code += ">>>>>>>>>>" + SET_ZERO + "+<<<<<<<<<<" # W2 = 1, stores 1 if no undo-carries have been done
+    add_code += copy_Dx_to_W0(0)
+    add_code += "["
+    add_code += "<<-<-<->>>>"
+    add_code += SET_ZERO
+    add_code += ">>>>>>>>>>" + SET_ZERO + "<<<<<<<<<<"
+    add_code += "]"
+
+    add_code += copy_Dx_to_W0(1)
+    add_code += "[>>>>>>>>>>[<<<<<<<<<<"
+    add_code += "<<<-<->>>>"
+    add_code += ">>>>>>>>>>"
+    add_code += SET_ZERO
+    add_code += "]<<<<<<<<<<"
+    add_code += SET_ZERO
+    add_code += "]"
+
+    add_code += copy_Dx_to_W0(2)
+    add_code += "[>>>>>>>>>>[<<<<<<<<<<"
+    add_code += "<<<<->>>>"
+    add_code += ">>>>>>>>>>"
+    add_code += SET_ZERO
+    add_code += "]<<<<<<<<<<"
+    add_code += SET_ZERO
+    add_code += "]"
+
+
+    return add_code
 
 
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
@@ -102,19 +133,19 @@ def gen_tests():
     for i in range(0,16):
         result += "<<<<"
         for place in range (0,4):
-            if (i & (2^place)):
+            if ((i >> place) & 1):
                 result += "->"
             else:
                 result += "+" * 5 + ">"
         result += AROUND_COLON
-        result += translation_add_full_3()
+        result += translation_add_full_4()
         result += AROUND_COLON
         result += "<[-]" * 4 + ">" * 4 + "\\"
     return result
 
 
 # actual code
-result = gen_tests()
+result = translation_add_full_4()
 
 
 
