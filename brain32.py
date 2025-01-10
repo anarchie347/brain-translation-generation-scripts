@@ -124,28 +124,32 @@ def translation_add_full_4():
 
     return add_code
 
+def translation_sub_full(): # ive forgotten how loops work
+    sub_code = copy_Dx_to_W0(0)
+    sub_code += "["
+    sub_code += copy_Dx_to_W0(1)
+    sub_code += "["
+    sub_code += copy_Dx_to_W0(2)
+    sub_code += "["
+    sub_code += "<<<<->>>>"
+    sub_code += SET_ZERO
+    sub_code += "]"
+    sub_code += "<<<->>>"
+    sub_code += SET_ZERO
+    sub_code += "]"
+    sub_code += "<<->>"
+    sub_code += SET_ZERO
+    sub_code += "]"
+    sub_code += "-"
+    return sub_code
 
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
-def gen_tests():
-    result = ">>>>"
-    for i in range(0,16):
-        result += "<<<<"
-        for place in range (0,4):
-            if ((i >> place) & 1):
-                result += "->"
-            else:
-                result += "+" * 5 + ">"
-        result += AROUND_COLON
-        result += translation_add_full_4()
-        result += AROUND_COLON
-        result += "<[-]" * 4 + ">" * 4 + "\\"
-    return result
 
 
 # actual code
-result = translation_add_full_4()
+result = ">>>>" + translation_sub_full() + AROUND_COLON
 
 
 
