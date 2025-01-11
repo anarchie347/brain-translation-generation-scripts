@@ -71,7 +71,7 @@ def translation_add_full(): # starts W0, ends W0
 
     return add_code
 
-def translation_sub_full():
+def translation_sub_full(): # starts W0, ends W0
     sub_code = "<<<<<" + SET_ZERO + "+>>>>>" # set W[-1] = 1, used so only 1 undo carry block is run
     sub_code += copy_Dx_to_W0(0)
     sub_code += "[" # if W0(=D0) != 0 then undo carry on D1,2,3
@@ -99,27 +99,61 @@ def translation_sub_full():
     sub_code += "<-<-<-<->>>>" # do actual subtraction. Has to be done after undo-carries because special case is when value is 0 BEFORE subtracting
     return sub_code
 
+def single_cell_zero_check(x):
+    check_code = copy_Dx_to_W0(x)
+    check_code += "[<<<<<+>>>>>" + SET_ZERO + "]" # if W0(=Dx) != 0, increment W[-1], then zero W0 to exit loop
+    return check_code
+
+def translation_open_full(): # starts W0, ends W0 for inside loop. If loop is skipped, pointer is at W[-1]
+    open_code = "<<<<<" + SET_ZERO + ">>>>>" # zero W[-1]
+
+    open_code += single_cell_zero_check(0)
+    open_code += single_cell_zero_check(1)
+    open_code += single_cell_zero_check(2)
+    open_code += single_cell_zero_check(3)
+
+    open_code += "<<<<<[>>>>>" # go to W[-1] to run loop condition, then return to W0
+    return open_code
+
+def translation_close_full(): # starts W0 if in loop, else W[-1]. exits W0
+    close_code = "<<<<<" + SET_ZERO + ">>>>>" # zero W[-1]
+
+    close_code += single_cell_zero_check(0)
+    close_code += single_cell_zero_check(1)
+    close_code += single_cell_zero_check(2)
+    close_code += single_cell_zero_check(3)
+
+    close_code += "<<<<<]>>>>>" # go to W[-1] to run condition, return to W0 after loop exit
+    return close_code
+
+
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
-def gen_sub_tests():
+def gen_brack_tests():
     result = ">"
     result += ">>>>"
     for i in range(0,16):
         result += "<<<<"
+        specific_sub = "<<<<"
         for place in range (0,4):
             if ((i >> place) & 1):
-                result += ">"
+                result += "+" * 3 + ">"
+                specific_sub += "-" + ">"
             else:
-                result += "+" * 5 + ">"
+                result += ">"
+                specific_sub += ">"
         result += AROUND_COLON
-        result += translation_sub_full()
+        result += translation_open_full()
+        result += specific_sub
+        result += "|"
+        result += translation_close_full()
         result += AROUND_COLON
         result += "<[-]" * 4 + ">" * 4 + "\\"
     return result
 
 # actual code
-result = gen_sub_tests()
+result = gen_brack_tests()
 
 
 with open("output.bf", "w") as file:
