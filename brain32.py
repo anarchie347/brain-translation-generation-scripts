@@ -130,30 +130,8 @@ def translation_close_full(): # starts W0 if in loop, else W[-1]. exits W0
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
-def gen_brack_tests():
-    result = ">"
-    result += ">>>>"
-    for i in range(0,16):
-        result += "<<<<"
-        specific_sub = "<<<<"
-        for place in range (0,4):
-            if ((i >> place) & 1):
-                result += "+" * 3 + ">"
-                specific_sub += "-" + ">"
-            else:
-                result += ">"
-                specific_sub += ">"
-        result += AROUND_COLON
-        result += translation_open_full()
-        result += specific_sub
-        result += "|"
-        result += translation_close_full()
-        result += AROUND_COLON
-        result += "<[-]" * 4 + ">" * 4 + "\\"
-    return result
-
 # actual code
-result = gen_brack_tests()
+result = translation_add_full()
 
 
 with open("output.bf", "w") as file:
