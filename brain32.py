@@ -43,83 +43,30 @@ def copy_Dx_to_W0(x): # starts and ends at W0
 
     return copy_code
 
-# problem is carry is undone just before check is done
-def translation_add_full_old(): # starts and ends W0
-    add_code = "<+<+<+<+>>>>" # add 1 to all D, return to W0
-    add_code += copy_Dx_to_W0(0) + "?"
-    add_code += "[<<->>" # if W0(=D0) != 0, undo D1 carry
-    add_code += copy_Dx_to_W0(1) + "?"
-    add_code += "[<<<->>>" # if W0(=D1) != 0 (and prev condition), undo D2 carry
-    add_code += copy_Dx_to_W0(2) + "?"
-    add_code += "[<<<<->>>>" # if W0(=D2) != 0 (and prev conditions), undo D3 carry
-    add_code += SET_ZERO # zero W0 so loops exit
-    add_code += "]]]" # exit on W0
-    return add_code
-
-# problem with carrys still. this involves carry check before carry is undone which means if a 255 exists anywhere it WILL cause a carry to its right
-def translation_add_full_2(): # starts and ends W0
-    #add_code = "<-<+<+<+>>>>" # add 1 to all D, return to W0
-    add_code = "<+>"
+def translation_add_full(): # starts W0, ends W0
+    add_code = "<+<+<+<+" # default carry on all D because conditions can only be done based on NOT zero
+    add_code += "<" + SET_ZERO + "+>>>>>" # set W[-1] = 1, stores 1 if no undo-carries have been done. Prevents undoing multiple times
     add_code += copy_Dx_to_W0(0)
-    add_code += "[" # if W0(=D0) != 0, undo D1 carry
-    add_code += copy_Dx_to_W0(1)
-    add_code += "[" # if W0(=D1) != 0 (and prev condition), undo D2 carry
-    add_code += copy_Dx_to_W0(2)
-    add_code += "[" # if W0(=D2) != 0 (and prev conditions), undo D3 carry
-    add_code += SET_ZERO # zero W0 so loops exit
-    add_code += "<<<<->>>>]<<<->>>]<<->>]" # exit on W0
-    return add_code
-
-def translation_add_full_3():
-    # need OR not AND
-    # Worst case scenario, code for 8 separate cases, so use extra + or - that will be cancelled out by the scenario also matching a later case
-    add_code = "<+<+<+<+>>>>"
-    add_code += copy_Dx_to_W0(0)
-    add_code += "["
-    add_code += "<<-<-<->>>>"
-    add_code += SET_ZERO
-    add_code += "]"
-    add_code += copy_Dx_to_W0(1)
-    add_code += "["
-    add_code += "<<<-<->>>>"
-    add_code += SET_ZERO
-    add_code += "]"
-    add_code += copy_Dx_to_W0(2)
-    add_code += "["
-    add_code += "<<<<->>>>"
-    add_code += SET_ZERO
-    add_code += "]"
-    return add_code
-
-
-def translation_add_full_4():
-    # could add perf improvement by using W[-1] instead of W2 or maybe make it so W is on left
-    add_code = "<+<+<+<+>>>>" # default carry
-    add_code += ">>>>>>>>>>" + SET_ZERO + "+<<<<<<<<<<" # W2 = 1, stores 1 if no undo-carries have been done
-    add_code += copy_Dx_to_W0(0)
-    add_code += "["
-    add_code += "<<-<-<->>>>"
-    add_code += SET_ZERO
-    add_code += ">>>>>>>>>>" + SET_ZERO + "<<<<<<<<<<"
+    add_code += "[" # if W0(=D0) != 0 then undo carries on W1,2,3
+    add_code += "<<-<-<-"
+    add_code += "<" + SET_ZERO + ">>>>>" + SET_ZERO # set W[-1] = 0 so no more undo-carries done, sets W0 = 0 to exit loop
     add_code += "]"
 
     add_code += copy_Dx_to_W0(1)
-    add_code += "[>>>>>>>>>>[<<<<<<<<<<"
-    add_code += "<<<-<->>>>"
-    add_code += ">>>>>>>>>>"
-    add_code += SET_ZERO
-    add_code += "]<<<<<<<<<<"
-    add_code += SET_ZERO
-    add_code += "]"
+    add_code += "[<<<<<[>>>>>" # W0(=D1) != 0 and W[-1] != 0 then undo carries in D2,3
+    add_code += "<<<-<-"
+    add_code += "<" + SET_ZERO # set W[-1] = 0 so no more undo-carries done (and exit loop)
+    add_code += "]" # exit W[-1]
+    add_code += ">>>>>" + SET_ZERO
+    add_code += "]" # exit W0
 
     add_code += copy_Dx_to_W0(2)
-    add_code += "[>>>>>>>>>>[<<<<<<<<<<"
-    add_code += "<<<<->>>>"
-    add_code += ">>>>>>>>>>"
-    add_code += SET_ZERO
-    add_code += "]<<<<<<<<<<"
-    add_code += SET_ZERO
-    add_code += "]"
+    add_code += "[<<<<<[>>>>>" # W0(=D2) != 0 and W[-1] != 0 then undo carries in D3
+    add_code += "<<<<-"
+    add_code += "<" + SET_ZERO # set W[-1] = 0 so no more undo-carries done (and exit loop)
+    add_code += "]" # exit W[-1]
+    add_code += ">>>>>" + SET_ZERO
+    add_code += "]" # exit W0
 
 
     return add_code
@@ -149,8 +96,7 @@ AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 
 # actual code
-result = ">>>>" + translation_sub_full() + AROUND_COLON
-
+result = ""
 
 
 with open("output.bf", "w") as file:
