@@ -123,6 +123,8 @@ def translation_close_full(): # starts W0 if in loop, else W[-1]. exits W0
     close_code += single_cell_zero_check(2)
     close_code += single_cell_zero_check(3)
 
+    # checks have to also be done just before the ] becausein the resulting brainfuck, the loop jump is to the corresponding *brainfuck* [ which is after the logic to work with the multiple cells representing one brain32 cell, so the logic must also be present here
+
     close_code += "<<<<<]>>>>>" # go to W[-1] to run condition, return to W0 after loop exit
     return close_code
 
@@ -131,7 +133,7 @@ ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 # actual code
-result = translation_add_full()
+result = translation_close_full()
 
 
 with open("output.bf", "w") as file:
