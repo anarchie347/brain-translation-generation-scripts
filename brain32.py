@@ -93,7 +93,7 @@ def translation_sub_full():
     sub_code += ">+<"
     sub_code += SET_ZERO # zero W[-1] to exit loop
     sub_code += "]"
-    sub_code += SET_ZERO + ">>>>>" # zero W0 to exit loop
+    sub_code += ">>>>>" + SET_ZERO # zero W0 to exit loop
     sub_code += "]" # exit W0
 
     sub_code += "<-<-<-<->>>>" # do actual subtraction. Has to be done after undo-carries because special case is when value is 0 BEFORE subtracting
@@ -102,24 +102,24 @@ def translation_sub_full():
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
-def gen_add_tests():
+def gen_sub_tests():
     result = ">"
     result += ">>>>"
     for i in range(0,16):
         result += "<<<<"
         for place in range (0,4):
             if ((i >> place) & 1):
-                result += "->"
+                result += ">"
             else:
                 result += "+" * 5 + ">"
         result += AROUND_COLON
-        result += translation_add_full()
+        result += translation_sub_full()
         result += AROUND_COLON
         result += "<[-]" * 4 + ">" * 4 + "\\"
     return result
 
 # actual code
-result = gen_add_tests()
+result = gen_sub_tests()
 
 
 with open("output.bf", "w") as file:
