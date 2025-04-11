@@ -47,7 +47,7 @@ def translation_add_full(): # starts W0, ends W0
     add_code = "<+<+<+<+" # default carry on all D because conditions can only be done based on NOT zero
     add_code += "<" + SET_ZERO + "+>>>>>" # set W[-1] = 1, stores 1 if no undo-carries have been done. Prevents undoing multiple times
     add_code += copy_Dx_to_W0(0)
-    add_code += "[" # if W0(=D0) != 0 then undo carries on W1,2,3
+    add_code += "[" # if W0(=D0) != 0 then undo carries on D1,2,3
     add_code += "<<-<-<-"
     add_code += "<" + SET_ZERO + ">>>>>" + SET_ZERO # set W[-1] = 0 so no more undo-carries done, sets W0 = 0 to exit loop
     add_code += "]"
