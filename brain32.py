@@ -71,6 +71,14 @@ def translation_add_full(): # starts W0, ends W0
 
     return add_code
 
+def translation_add_2(): # starts W0, ends W0
+    add_code = "<<<+<+" #default carry on D3, increment D2
+    add_code += ">>>>" #return W0
+    add_code += copy_Dx_to_W0(2)
+    add_code += "[" #if W0(=D2) != 0, then undo D3 carry
+    add_code += "<<<<->>>>" # undo D3 carry, return W0
+    add_code += "]" # exit W0
+
 def translation_sub_full(): # starts W0, ends W0
     sub_code = "<<<<<" + SET_ZERO + "+>>>>>" # set W[-1] = 1, used so only 1 undo carry block is run
     sub_code += copy_Dx_to_W0(0)
