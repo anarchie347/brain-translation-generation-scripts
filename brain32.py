@@ -78,7 +78,7 @@ def translation_add_1(): #start W0, end W0
     add_code += "[" #if W0(=D1) != 0 then undo carries on D2,3
     add_code += "<<<-<-"
     add_code += "<" + SET_ZERO + ">>>>>" + SET_ZERO # set W[-1] = 0 so no more undo carries, sets W0 = 0 to exit loop
-    add_cope += "]"
+    add_code += "]"
 
     add_code += copy_Dx_to_W0(2)
     add_code += "[<<<<<[" #W0(=D2) != 0 and W[-1] != 0 then undo carries in D3
@@ -88,6 +88,8 @@ def translation_add_1(): #start W0, end W0
     add_code += ">>>>>" + SET_ZERO # to exit loop at W0
     add_code += "]" #exit W0
 
+    return add_code
+
 def translation_add_2(): # starts W0, ends W0
     add_code = "<<<+<+" #default carry on D3, increment D2
     add_code += ">>>>" #return W0
@@ -95,6 +97,8 @@ def translation_add_2(): # starts W0, ends W0
     add_code += "[" #if W0(=D2) != 0, then undo D3 carry
     add_code += "<<<<->>>>" # undo D3 carry, return W0
     add_code += "]" # exit W0
+
+    return add_code
 
 # add_3 is not needed as no carry logic is required
 
@@ -160,7 +164,7 @@ ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 # actual code
-result = translation_close_full()
+result = translation_add_1()
 
 
 with open("output.bf", "w") as file:
