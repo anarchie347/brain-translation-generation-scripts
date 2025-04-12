@@ -199,7 +199,7 @@ ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 # actual code
-result = translation_add_1()
+result = translation_sub_2()
 
 
 with open("output.bf", "w") as file:
