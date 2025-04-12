@@ -194,6 +194,35 @@ def translation_close_full(): # starts W0 if in loop, else W[-1]. exits W0
     close_code += "<<<<<]>>>>>" # go to W[-1] to run condition, return to W0 after loop exit
     return close_code
 
+def translation_open_custom(D3 : int, D2 : int, D1 : int, D0 : int):
+    open_code = "<<<<<" + SET_ZERO + ">>>>>"
+    if D0 == 1:
+        open_code += single_cell_zero_check(0)
+    if D1 == 1:
+        open_code += single_cell_zero_check(1)
+    if D2 == 2:
+        open_code += single_cell_zero_check(2)
+    if D3 == 3:
+        open_code += single_cell_zero_check(3)
+    open_code += "<<<<<[>>>>>"
+
+    return open_code
+
+def translation_close_custom(D3: int, D2 : int, D1 : int, D0 : int):
+    close_code = "<<<<<" + SET_ZERO + ">>>>>"
+    if D0 == 1:
+        close_code += single_cell_zero_check(0)
+    if D1 == 1:
+        close_code += single_cell_zero_check(1)
+    if D2 == 1:
+        close_code += single_cell_zero_check(2)
+    if D3 == 1:
+        close_code += single_cell_zero_check(3)
+
+    close_code += "<<<<<]>>>>>"
+
+    return close_code
+
 
 ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
