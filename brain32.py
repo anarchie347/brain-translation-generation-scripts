@@ -114,7 +114,7 @@ def translation_sub_full(): # starts W0, ends W0
     sub_code += copy_Dx_to_W0(1)
     sub_code += "[<<<<<[" # if W0(=D1) !=0 and havent already undone, undo carry on D2,3
     sub_code += ">>+<+<"
-    sub_code += SET_ZERO # set W[-1] = 0 to prevent future carries
+    sub_code += SET_ZERO # set W[-1] = 0 to prevent future undos
     sub_code += "]"
     sub_code += ">>>>>" + SET_ZERO # zero W0 to exit loop
     sub_code += "]" # exit on W0
@@ -129,6 +129,41 @@ def translation_sub_full(): # starts W0, ends W0
 
     sub_code += "<-<-<-<->>>>" # do actual subtraction. Has to be done after undo-carries because special case is when value is 0 BEFORE subtracting
     return sub_code
+
+def translation_sub_1():
+    sub_code = "<<<<<" + SET_ZERO + ">>>>>" # Set W[-1] = 1, used so only 1 undo carry block is run
+    sub_code += copy_Dx_to_W0(1)
+    sub_code += "[" # if W0(=D0) != 0 then undo carry on D2,3
+    sub_code += "<<<+<+" # undo carries
+    sub_code += "<" + SET_ZERO + ">>>>>" # set W[-1] = to prevent future undos
+    sub_code += SET_ZERO
+    sub_code += "]" # exit on W0
+
+    sub_code += copy_Dx_to_W0(2)
+    sub_code += "[<<<<<[" # if W0(=D2) != 0 and havent already undone, undo carry on D3
+    sub_code += ">+<" # undo D3 carry, return to W[-1]
+    sub_code += SET_ZERO # set W[-1] = 0 to prevent future undos
+    sub_code += "]" # exit on W[-1]
+    sub_code += ">>>>>" + SET_ZERO # set W0 to exit loop
+    sub_code += "]" # exit on W0
+
+    sub_code += "<<-<-<->>>>" # do actual subtraction. has to be done after undo-carries because special case is when value is 0 BEFORE subtracting
+
+    return sub_code
+
+def translation_sub_2():
+    sub_code = copy_Dx_to_W0(2)
+    sub_code += "[" # if W0(=D0) != 0 then undo carry on D3
+    sub_code += "<<<<+>>>>" # undo D3 carry
+    sub_code += SET_ZERO # zero W0 for loop exit
+    sub_code += "]" # exit loop on W0
+
+    sub_code += "<<<-<-" # do actual subtraction. has to be done after undo-carries because special case is whenvalue is 0 BEFORE subtracting
+
+    return sub_code
+
+# Like addition, sub_3 is trivial as no carry logic is needed
+
 
 def single_cell_zero_check(x):
     check_code = copy_Dx_to_W0(x)
