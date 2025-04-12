@@ -200,9 +200,9 @@ def translation_open_custom(D3 : int, D2 : int, D1 : int, D0 : int):
         open_code += single_cell_zero_check(0)
     if D1 == 1:
         open_code += single_cell_zero_check(1)
-    if D2 == 2:
+    if D2 == 1:
         open_code += single_cell_zero_check(2)
-    if D3 == 3:
+    if D3 == 1:
         open_code += single_cell_zero_check(3)
     open_code += "<<<<<[>>>>>"
 
@@ -228,8 +228,18 @@ ADVANCE_COLON = ">>>>>>>>>>>>>>:<<<<<<<<<<<<<<"
 AROUND_COLON = ">>>>>>>:<<<<<<<"
 
 # actual code
-result = translation_sub_2()
 
+# the following segment of code outputs to stderr which cells are being included in the bracket code generation
+# used so i can ensure i have the corect values in D to match what i wish them to represent
+# outputs to stderr because i pipe stdout into a copy command to extract the actual translation code to use
+# so i need a different output to the screen
+import sys
+D = [0,0,0,1]
+errstr = "".join([str(3 - i) if x == 1 else "" for i,x in enumerate(D)])
+print(errstr, file=sys.stderr)
+
+
+result = translation_close_custom(*D)
 
 with open("output.bf", "w") as file:
     file.write(result)
